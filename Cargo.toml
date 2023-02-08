@@ -1,2 +1,2 @@
 [workspace]
-members = ["prost-live"]
+members = ["prost-live", "axum-live"]

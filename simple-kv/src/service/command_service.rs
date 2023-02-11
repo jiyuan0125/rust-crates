@@ -1,8 +1,6 @@
-use crate::*;
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::*;
     use crate::command_request::RequestData;
 
     #[test]

@@ -1,7 +1,6 @@
-
 use anyhow::Result;
 use futures::prelude::*;
-use kv::{Service, MemTable, ServiceInner};
+use kv::{Service, ServiceInner, SledDb};
 use tokio::net::TcpListener;
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 use tracing::info;
@@ -14,7 +13,12 @@ async fn main() -> Result<()> {
     info!("Start listening on {}", addr);
 
     // 初始化 service
-    let service: Service = ServiceInner::new(MemTable::new()).into();
+    let service: Service<SledDb> = ServiceInner::new(SledDb::new("/tmp/kvserver"))
+        .fn_before_send(|res| match res.message.as_ref() {
+            "" => res.message = "altered. Original message is empty.".into(),
+            s => res.message = format!("altered: {}", s),
+        })
+        .into();
 
     loop {
         let (stream, addr) = listener.accept().await?;

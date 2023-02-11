@@ -9,10 +9,10 @@ pub enum KvError {
     #[error("Cannot parse command: `{0}`")]
     InvalidCommand(String),
 
-    #[error("Cannot convert value {:0} to {1}")]
+    #[error("Cannot convert value {0:?} to {1}")]
     ConvertError(Value, &'static str),
 
-    #[error("Cannot process command {0} with table: {1}, key: {2}. Error: {}")]
+    #[error("Cannot process command {0} with table: {1}, key: {2}. Error: {3}")]
     StorageError(&'static str, String, String, String),
 
     #[error("Failed to encode protobuf message")]

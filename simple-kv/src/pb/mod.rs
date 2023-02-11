@@ -1,7 +1,7 @@
 pub mod abi;
 
 use abi::{command_request::RequestData, *};
-use bytes::{Buf, Bytes, BytesMut};
+use bytes::{Bytes, BytesMut};
 use http::StatusCode;
 use prost::Message;
 
@@ -91,6 +91,12 @@ impl Kvpair {
     }
 }
 
+impl From<(String, Value)> for Kvpair {
+    fn from(value: (String, Value)) -> Self {
+        Kvpair::new(value.0, value.1)
+    }
+}
+
 /// 从 String 转换成 Value
 impl From<String> for Value {
     fn from(s: String) -> Self {
@@ -115,6 +121,25 @@ impl From<i64> for Value {
         Self {
             value: Some(value::Value::Integer(i)),
         }
+    }
+}
+
+/// 从 &[u8]转换成 Value
+impl TryFrom<&[u8]> for Value {
+    type Error = KvError;
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        Ok(Self {
+            value: Some(value::Value::String(
+                ::prost::alloc::string::String::decode_length_delimited(value)?,
+            )),
+        })
+    }
+}
+
+impl TryFrom<Value> for Vec<u8> {
+    type Error = KvError;
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        Ok(Value::encode_length_delimited_to_vec(&value))
     }
 }
 
